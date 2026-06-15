@@ -1,29 +1,32 @@
 from Functions.WAPDriver import WAPDriver
 from Exporter.Screenshot import Screenshot
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 import random
 import time
 
-queryKey = "StarCraft II"
-Trytimes = 5
-Device = "iPhone 14 Pro Max"
+queryKey = "StarCraft II" ## 搜尋參數
+Trytimes = 5 ## 重試次數
+Device = "iPhone 14 Pro Max" ## 設備類型
 
 Wap = WAPDriver(Device)
 Wap.driver.get("https://m.twitch.tv/")
+## 移至查詢
 btn_browse = Wap.driver.find_element(By.XPATH, "//*[contains(@id,'root')]/div[2]/a[2]")
 btn_browse.click()
 time.sleep(3)
+## 查詢
 txt_query = Wap.driver.find_element(By.XPATH, "//*[contains(@id,'twilight-sticky-header-root')]/div/div/div/div/input")
 txt_query.click()
 txt_query.send_keys(queryKey, Keys.ENTER)
 time.sleep(3)
 for i in range(Trytimes):
+    ## 往下滑動兩次
     Wap.driver.execute_script("window.scrollBy(0, 200);")
     Wap.driver.execute_script("window.scrollBy(0, 200);")
     #ActionChains(Wap.driver).scroll_by_amount(0, 200).perform()
+
+    ##選擇任一直播主
     div_streamer = Wap.driver.find_elements(By.CLASS_NAME, "eMycWd")
     if len(div_streamer)>0:
         index = random.randint(0, len(div_streamer)-1)
@@ -50,6 +53,7 @@ while Wap.driver.execute_script("return document.readyState;") != "complete":
 div_streaming = Wap.driver.find_element(By.CLASS_NAME, "video-player__default-player")
 for i in range(Trytimes):
     if div_streaming.is_displayed():
+        ##截圖
         Screenshot.ExportScreenshot(Wap.driver)
         break
     else:
@@ -57,5 +61,5 @@ for i in range(Trytimes):
             print("等待過久")
             break
         time.sleep(3)
-
+##關閉
 Wap.driver.quit()
